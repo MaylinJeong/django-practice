@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+import datetime
+
 
 # Create your models here.
 class Question(models.Model):
@@ -19,8 +21,16 @@ class Question(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     category = models.CharField(choices=Category.choices, max_length=10)
-    importance = models.IntegerField(choices=Importance.choices)
-    create_date = models.DateTimeField()
+    importance = models.IntegerField(choices=Importance.choices, default=Importance.NORMAL)
+    create_date = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def attached_file_path(self, filename):
+        dirname = datetime.datetime.now().strftime(str('uploads/%Y/%m/%d'))
+        path = dirname + '/q_{0}/{1}'.format(self.id, filename)
+        return path
+
+    attached_file = models.FileField(upload_to=attached_file_path, blank=True)
 
 
 class Answer(models.Model):
